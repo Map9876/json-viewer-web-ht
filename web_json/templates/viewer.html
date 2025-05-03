@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/json-viewer@1.2.0/dist/json-viewer.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/json-viewer@1.2.0/dist/json-viewer.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        #json-container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .controls {
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 5px 10px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button onclick="copyToClipboard()">Copy JSON</button>
+        <button onclick="downloadJSON()">Download JSON</button>
+        <button onclick="window.close()">Close Viewer</button>
+    </div>
+    <div id="json-container"></div>
+
+    <script>
+        fetch('/get_data')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('json-container').innerHTML = '';
+                new JSONViewer({
+                    container: document.getElementById('json-container'),
+                    data: data,
+                    theme: 'light',
+                    expand: true
+                });
+            });
+
+        function copyToClipboard() {
+            fetch('/get_data')
+                .then(response => response.json())
+                .then(data => {
+                    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+                    alert('JSON copied to clipboard!');
+                });
+        }
+
+        function downloadJSON() {
+            fetch('/get_data')
+                .then(response => response.json())
+                .then(data => {
+                    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'data.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                });
+        }
+    </script>
+</body>
+</html>
