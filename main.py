@@ -1,5 +1,6 @@
 import os
 import re
+import time  # 添加这行
 import requests
 import subprocess
 import threading
